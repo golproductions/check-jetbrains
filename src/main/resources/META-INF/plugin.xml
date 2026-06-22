@@ -1,0 +1,56 @@
+<idea-plugin>
+    <id>com.golproductions.check</id>
+    <name>GOL Check - Anti-Hallucination Firewall</name>
+    <vendor email="support@golproductions.com" url="https://www.golproductions.com">GOL Productions</vendor>
+
+    <description><![CDATA[
+    <b>The anti-hallucination firewall for AI-powered development.</b><br><br>
+    Validates commands before execution. Catches what AI gets wrong before it breaks your project.<br><br>
+    <ul>
+        <li>Validates shell commands against real system state</li>
+        <li>Catches hallucinated packages, APIs, and flags</li>
+        <li>Works with JetBrains AI Assistant, Copilot, and all AI tools</li>
+        <li>Under $0.01 per validation</li>
+    </ul>
+    <br>
+    Get your free Client ID at <a href="https://www.golproductions.com/check.html">golproductions.com/check</a>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="terminal-support.xml">org.jetbrains.plugins.terminal</depends>
+
+    <actions>
+        <group id="CheckActions" text="Check" description="GOL Check actions">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action id="Check.ValidateCommand"
+                    class="com.golproductions.check.ValidateCommandAction"
+                    text="Validate Command with Check"
+                    description="Validate a shell command before running it"
+                    icon="AllIcons.Actions.ShieldCheck"/>
+            <action id="Check.ValidateSelection"
+                    class="com.golproductions.check.ValidateSelectionAction"
+                    text="Check Selected Text"
+                    description="Validate selected text as a command"
+                    icon="AllIcons.Actions.ShieldCheck"/>
+        </group>
+        <action id="Check.ValidateSelectionContext"
+                class="com.golproductions.check.ValidateSelectionAction"
+                text="Validate with Check"
+                icon="AllIcons.Actions.ShieldCheck">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.golproductions.check.CheckSettingsConfigurable"
+                id="com.golproductions.check.settings"
+                displayName="GOL Check"/>
+        <applicationService
+                serviceImplementation="com.golproductions.check.CheckSettings"/>
+        <notificationGroup id="GOL Check"
+                           displayType="BALLOON"
+                           key="notification.group.gol.check"/>
+    </extensions>
+</idea-plugin>

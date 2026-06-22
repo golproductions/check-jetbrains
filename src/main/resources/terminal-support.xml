@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Terminal integration loaded when terminal plugin is available -->
+    </extensions>
+</idea-plugin>

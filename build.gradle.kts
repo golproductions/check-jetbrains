@@ -15,7 +15,6 @@ repositories {
 dependencies {
     intellijPlatform {
         intellijIdeaCommunity("2024.1")
-        instrumentationTools()
     }
 }
 
@@ -39,6 +38,7 @@ intellijPlatform {
             sinceBuild = "241"
         }
     }
+    instrumentCode = false
 }
 
 tasks {

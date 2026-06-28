@@ -21,14 +21,11 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         id = "com.golproductions.check"
-        name = "GOL Check - Anti-Hallucination Firewall"
+        name = "GOL Check - Anti-Hallucination Engine"
         version = "1.0.0"
         description = """
-            Validates AI-generated commands before execution. Catches hallucinated commands,
-            fake APIs, and invalid operations before they break your project.
-
-            Works with all JetBrains IDEs: IntelliJ IDEA, WebStorm, PyCharm, GoLand,
-            Rider, PHPStorm, RubyMine, and more.
+            The universal anti-hallucination engine. AI agents hallucinate. Check catches it
+            before it reaches your project. Works with all JetBrains IDEs.
         """.trimIndent()
         vendor {
             name = "GOL Productions"

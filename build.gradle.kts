@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.golproductions"
-version = "1.0.2"
+version = "1.0.5"
 
 repositories {
     mavenCentral()
@@ -22,11 +22,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "com.golproductions.check"
         name = "GOL Check - Anti-Hallucination Engine"
-        version = "1.0.2"
-        description = """
-            The universal anti-hallucination engine. AI agents hallucinate. Check catches it
-            before it reaches your project. Works with all JetBrains IDEs.
-        """.trimIndent()
+        version = "1.0.5"
         vendor {
             name = "GOL Productions"
             url = "https://www.golproductions.com"

@@ -15,7 +15,6 @@
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends optional="true" config-file="terminal-support.xml">org.jetbrains.plugins.terminal</depends>
 
     <actions>
         <group id="CheckActions" text="Check" description="GOL Check actions">

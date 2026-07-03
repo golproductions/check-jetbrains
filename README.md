@@ -1,5 +1,7 @@
 # GOL Check for JetBrains
 
+> **This is a thin wrapper.** The one location for Check — install, hook mode, MCP, CLI, and the HTTP contract — is [check.golproductions.com](https://check.golproductions.com) · [golproductions/check](https://github.com/golproductions/check). Integrate from there.
+
 The universal anti-hallucination engine for JetBrains IDEs.
 
 AI agents hallucinate. Check catches it before it reaches your project. No AI inside. Deterministic. Sub-100ms.

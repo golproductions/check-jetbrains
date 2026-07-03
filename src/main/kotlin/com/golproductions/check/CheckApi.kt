@@ -50,8 +50,32 @@ object CheckApi {
         return CheckResult(verdict, reason)
     }
 
-    // Mint a free key with no signup. Returns the client_id (also persisted) or null.
+    // One free GOL Client ID per machine, shared by every Check client
+    // (npm hook, MCP, editors). All clients read and write this file.
+    private val machineKeyFile = java.io.File(System.getProperty("user.home"), ".check/key")
+
+    private fun readMachineKey(): String? {
+        return try {
+            val k = machineKeyFile.readText(Charsets.UTF_8).trim()
+            k.ifEmpty { null }
+        } catch (e: Exception) { null }
+    }
+
+    private fun writeMachineKey(key: String) {
+        try {
+            machineKeyFile.parentFile?.mkdirs()
+            machineKeyFile.writeText(key, Charsets.UTF_8)
+        } catch (e: Exception) {}
+    }
+
+    // Resolve the machine key: another Check client may already have minted one.
+    // Otherwise mint (same fingerprint recipe everywhere, so the server returns
+    // the same key even in a race). Persists to settings and the machine key file.
     private fun mintInstantKey(): String? {
+        readMachineKey()?.let {
+            CheckSettings.getInstance().clientId = it
+            return it
+        }
         return try {
             val conn = URI(INSTANT).toURL().openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
@@ -68,22 +92,32 @@ object CheckApi {
             val response = conn.inputStream.bufferedReader().use { it.readText() }
             val id = extractJsonString(response, "client_id") ?: return null
             CheckSettings.getInstance().clientId = id
+            writeMachineKey(id)
             id
         } catch (e: Exception) {
             null
         }
     }
 
-    // Stable anonymous device fingerprint: one-way SHA-256 of coarse machine facts.
-    // No personal data. The server uses it only to rate-limit free-key minting.
+    // Stable anonymous device fingerprint: one-way SHA-256 of coarse machine
+    // facts. The recipe (hostname|platform|arch|username, Node.js-style tokens)
+    // is shared by every Check client so all tools on one machine resolve to
+    // the same free key.
     private fun deviceFingerprint(): String {
         val host = try { java.net.InetAddress.getLocalHost().hostName } catch (e: Exception) { "" }
-        val seed = listOf(
-            System.getProperty("os.name") ?: "",
-            System.getProperty("os.arch") ?: "",
-            System.getProperty("user.name") ?: "",
-            host
-        ).joinToString("|")
+        val osName = (System.getProperty("os.name") ?: "").lowercase()
+        val platform = when {
+            osName.contains("win") -> "win32"
+            osName.contains("mac") || osName.contains("darwin") -> "darwin"
+            else -> "linux"
+        }
+        val archRaw = (System.getProperty("os.arch") ?: "").lowercase()
+        val arch = when {
+            archRaw.contains("aarch64") || archRaw.contains("arm64") -> "arm64"
+            else -> "x64"
+        }
+        val user = System.getProperty("user.name") ?: ""
+        val seed = listOf(host, platform, arch, user).joinToString("|")
         val digest = java.security.MessageDigest.getInstance("SHA-256")
             .digest(seed.toByteArray(Charsets.UTF_8))
         return digest.joinToString("") { "%02x".format(it) }

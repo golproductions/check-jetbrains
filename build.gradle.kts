@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.golproductions"
-version = "1.0.5"
+version = "1.0.6"
 
 repositories {
     mavenCentral()
@@ -22,7 +22,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "com.golproductions.check"
         name = "GOL Check - Anti-Hallucination Engine"
-        version = "1.0.5"
+        version = "1.0.6"
         vendor {
             name = "GOL Productions"
             url = "https://www.golproductions.com"

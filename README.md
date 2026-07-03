@@ -1,6 +1,6 @@
 # GOL Check for JetBrains
 
-> **This is a thin wrapper.** The one location for Check — install, hook mode, MCP, CLI, and the HTTP contract — is [check.golproductions.com](https://check.golproductions.com) · [golproductions/check](https://github.com/golproductions/check). Integrate from there.
+> **This is a thin wrapper.** The one location for Check (install, hook mode, MCP, CLI, and the HTTP contract) is [check.golproductions.com](https://check.golproductions.com) · [golproductions/check](https://github.com/golproductions/check). Integrate from there.
 
 The universal anti-hallucination engine for JetBrains IDEs.
 
@@ -14,8 +14,8 @@ That's it. Check activates a free key on first run. No signup, no API key to pas
 
 ## Usage
 
-- **Tools > Check > Validate Command with Check** — validate a command before running it
-- **Right-click > Validate with Check** — validate selected text as a command
+- **Tools > Check > Validate Command with Check**: validate a command before running it
+- **Right-click > Validate with Check**: validate selected text as a command
 - Settings: **Settings > Tools > GOL Check**
 
 ## Pricing

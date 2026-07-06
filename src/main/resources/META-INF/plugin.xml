@@ -5,7 +5,7 @@
 
     <description><![CDATA[
     <b>The anti-hallucination layer.</b><br><br>
-    Check stops hallucinated commands, packages, and URLs before they reach your project. Invisible. Sub-100ms. No AI inside.<br><br>
+    Check stops hallucinated commands, packages, and URLs before they reach your project. Invisible. One round trip to the edge. No AI inside.<br><br>
     <b>No signup.</b> A free key is activated on first use. 120 free checks every day. After that, $0.0068 AUD per check. Credits never expire.<br><br>
     <b>One install.</b> Wires Claude Code, Cursor, Gemini CLI, and any MCP client at once:<br>
     <code>npx @golproductions/check --install</code><br><br>

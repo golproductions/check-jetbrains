@@ -4,7 +4,7 @@
 
 The anti-hallucination layer for JetBrains IDEs.
 
-Check stops hallucinated commands, packages, and URLs before they reach your project. No AI inside. Deterministic. Sub-100ms.
+Check stops hallucinated commands, packages, and URLs before they reach your project. No AI inside. Deterministic. One round trip to the edge.
 
 ## Install
 

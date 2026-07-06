@@ -1,17 +1,17 @@
 <idea-plugin>
     <id>com.golproductions.check</id>
-    <name>GOL Check - Anti-Hallucination Engine</name>
+    <name>GOL Check - Anti-Hallucination Layer</name>
     <vendor email="support@golproductions.com" url="https://www.golproductions.com">GOL Productions</vendor>
 
     <description><![CDATA[
-    <b>The universal anti-hallucination engine.</b><br><br>
-    AI agents hallucinate. Check catches it before it reaches your project. Invisible. Sub-100ms. No AI inside.<br><br>
+    <b>The anti-hallucination layer.</b><br><br>
+    Check stops hallucinated commands, packages, and URLs before they reach your project. Invisible. Sub-100ms. No AI inside.<br><br>
     <b>No signup.</b> A free key is activated on first use. 120 free checks every day. After that, $0.0068 AUD per check. Credits never expire.<br><br>
-    <b>Works everywhere.</b> Install all integrations at once:<br>
+    <b>One install.</b> Wires Claude Code, Cursor, Gemini CLI, and any MCP client at once:<br>
     <code>npx @golproductions/check --install</code><br><br>
     <a href="https://www.golproductions.com/check.html">Documentation</a> &middot;
     <a href="https://www.golproductions.com/pricing.html">Pricing</a> &middot;
-    <a href="https://www.golproductions.com/blog/">Blog</a>
+    <a href="https://www.golproductions.com/blog">Blog</a>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

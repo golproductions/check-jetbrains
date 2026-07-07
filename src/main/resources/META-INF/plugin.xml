@@ -4,11 +4,11 @@
     <vendor email="support@golproductions.com" url="https://www.golproductions.com">GOL Productions</vendor>
 
     <description><![CDATA[
-    <b>The anti-hallucination layer.</b><br><br>
-    Check stops hallucinated commands, packages, and URLs before they reach your project. Invisible. One round trip to the edge. No AI inside.<br><br>
-    <b>No signup.</b> A free key is activated on first use. 120 free checks every day. After that, $0.0068 AUD per check. Credits never expire.<br><br>
-    <b>One install.</b> Wires Claude Code, Cursor, Gemini CLI, and any MCP client at once:<br>
+    <b>Ask Check before you run it.</b><br><br>
+    Validate any shell command against the Check engine from inside your IDE: select text and right-click, or use Tools &gt; Check, and the verdict comes back in one round trip: runnable or invalid. Deterministic, no AI inside. Check first asks your own shell whether each binary exists, then the edge rules on the rest.<br><br>
+    <b>The same engine that gates AI coding agents.</b> This plugin answers when you ask; the automatic pre-execution hook that blocks hallucinated commands in Claude Code, Cursor, and Gemini CLI installs from the one location:<br>
     <code>npx @golproductions/check --install</code><br><br>
+    <b>No signup.</b> A free key is activated on first use. 120 free checks every day. After that, $0.0068 AUD per check. Credits never expire.<br><br>
     <a href="https://www.golproductions.com/check.html">Documentation</a> &middot;
     <a href="https://www.golproductions.com/pricing.html">Pricing</a> &middot;
     <a href="https://www.golproductions.com/blog">Blog</a>

@@ -9,7 +9,7 @@ object CheckApi {
     private const val API = "https://triage.golproductions.com/preflight"
     private const val INSTANT = "https://triage.golproductions.com/instant-key"
     private const val CHANNEL = "jetbrains"
-    private const val VERSION = "1.0.13"
+    private const val VERSION = "1.0.14"
     private const val TIMEOUT = 5000
 
     // THE ROD (ported from the npm client): do not model the shell — ask it.

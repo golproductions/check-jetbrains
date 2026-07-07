@@ -28,7 +28,7 @@ class ValidateCommandAction : AnAction() {
                     val msg = if (result.verdict == "runnable") {
                         "$icon Runnable: ${command.take(80)}"
                     } else {
-                        "$icon Blocked: ${result.reason ?: command.take(80)}"
+                        "$icon Invalid: ${result.reason ?: command.take(80)}"
                     }
                     NotificationGroupManager.getInstance()
                         .getNotificationGroup("GOL Check")

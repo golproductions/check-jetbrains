@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.golproductions"
-version = "1.0.10"
+version = "1.0.12"
 
 repositories {
     mavenCentral()
@@ -22,13 +22,16 @@ intellijPlatform {
     pluginConfiguration {
         id = "com.golproductions.check"
         name = "GOL Check - Anti-Hallucination Layer"
-        version = "1.0.10"
+        version = "1.0.12"
         vendor {
             name = "GOL Productions"
             url = "https://www.golproductions.com"
         }
         ideaVersion {
             sinceBuild = "241"
+            // No upper bound: the gradle plugin otherwise defaults untilBuild to the
+            // target branch (241.*), which locked out every IDE newer than 2024.1.
+            untilBuild = provider { null }
         }
     }
     instrumentCode = false

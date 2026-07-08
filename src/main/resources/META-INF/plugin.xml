@@ -4,7 +4,7 @@
     <vendor email="support@golproductions.com" url="https://www.golproductions.com">GOL Productions</vendor>
 
     <description><![CDATA[
-    <b>Ask Check before you run it.</b><br><br>
+    <b>Less hallucinations.</b> Ask Check before you run it.<br><br>
     Validate any shell command against the Check engine from inside your IDE. Select text and right-click, or use Tools &gt; Check, and the verdict comes back in one round trip: runnable or invalid. Deterministic, no AI inside. Check first asks your own shell whether each binary exists, then the edge rules on the rest.<br><br>
     <b>The same engine that gates AI coding agents.</b> This plugin answers when you ask; the automatic pre-execution hook that blocks hallucinated commands in Claude Code, Cursor, and Gemini CLI installs from the one location:<br>
     <code>npx @golproductions/check --install</code><br><br>

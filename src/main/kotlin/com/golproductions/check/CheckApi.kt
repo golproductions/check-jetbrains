@@ -9,7 +9,7 @@ object CheckApi {
     private const val API = "https://triage.golproductions.com/preflight"
     private const val INSTANT = "https://triage.golproductions.com/instant-key"
     private const val CHANNEL = "jetbrains"
-    private const val VERSION = "1.0.17"
+    private const val VERSION = "1.0.18"
     private const val TIMEOUT = 5000
 
     // On Windows, bare "bash" is a trap: PATH can resolve to WSL's
@@ -65,24 +65,28 @@ object CheckApi {
                 ?: return CheckResult("error", "Could not activate Check. Check your connection and try again.")
         }
 
-        // Syntax first: the shell's own parser speaks before the server does.
+        // Syntax check and server round trip share no data: run them
+        // concurrently (same as the npm hook). The HTTP call fires on a
+        // background thread while the shell parses; the shell's syntax
+        // verdict has absolute priority, so if bash refuses the grammar the
+        // in-flight server call is abandoned (harmless) and we deny locally.
+        val firstBody = """{"command":${escapeJson(command)},"platform":"jetbrains","channel":"$CHANNEL","v":"$VERSION","probe_ok":1}"""
+        val httpFuture = java.util.concurrent.CompletableFuture.supplyAsync { postPreflight(clientId, firstBody) }
         val synErr = syntaxError(command)
         if (synErr != null) {
             return CheckResult("invalid", "syntax error. $synErr")
         }
-
-        // First pass: declare probe capability. If the server cannot resolve
-        // a word it names it, this client asks the shell about exactly that
-        // word and calls again with the shell's answer, relayed verbatim.
-        var reply = postPreflight(clientId, """{"command":${escapeJson(command)},"platform":"jetbrains","channel":"$CHANNEL","v":"$VERSION","probe_ok":1}""")
+        var reply = await(httpFuture)
 
         if (reply.code == 200 && extractJsonString(reply.body, "verdict") == "probe") {
-            val words = extractJsonStringArray(reply.body, "probe").take(8)
+            val words = extractJsonStringArray(reply.body, "probe").take(8).filter { it.isNotEmpty() && it.length <= 200 }
+            // Every word asked at once: N probes cost one probe's time.
+            val answers = words.map { w -> java.util.concurrent.CompletableFuture.supplyAsync { Pair(w, shellType(w)) } }
+                .map { await(it) }
             val probes = StringBuilder()
             val whys = StringBuilder()
-            for (w in words) {
-                if (w.isEmpty() || w.length > 200) continue
-                val t = shellType(w) ?: continue
+            for ((w, t) in answers) {
+                if (t == null) continue
                 if (probes.isNotEmpty()) probes.append(",")
                 probes.append("${escapeJson(w)}:${t.first}")
                 if (!t.first && t.second != null) {
@@ -102,6 +106,18 @@ object CheckApi {
         val verdict = extractJsonString(reply.body, "verdict") ?: "error"
         val reason = extractJsonString(reply.body, "reason") ?: extractJsonString(reply.body, "error")
         return CheckResult(verdict, reason)
+    }
+
+    // Unwrap a concurrent result so the caller's try/catch sees the real
+    // cause (an IOException from the HTTP call), not a CompletableFuture
+    // ExecutionException wrapper. Behavior stays identical to the old serial
+    // path where postPreflight threw straight out of validate().
+    private fun <T> await(f: java.util.concurrent.CompletableFuture<T>): T {
+        try {
+            return f.get()
+        } catch (e: java.util.concurrent.ExecutionException) {
+            throw e.cause ?: e
+        }
     }
 
     private data class Reply(val code: Int, val body: String)

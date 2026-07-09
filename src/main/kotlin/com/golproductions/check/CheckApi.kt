@@ -9,7 +9,7 @@ object CheckApi {
     private const val API = "https://triage.golproductions.com/preflight"
     private const val INSTANT = "https://triage.golproductions.com/instant-key"
     private const val CHANNEL = "jetbrains"
-    private const val VERSION = "1.0.16"
+    private const val VERSION = "1.0.17"
     private const val TIMEOUT = 5000
 
     // On Windows, bare "bash" is a trap: PATH can resolve to WSL's
@@ -71,6 +71,42 @@ object CheckApi {
             return CheckResult("invalid", "syntax error. $synErr")
         }
 
+        // First pass: declare probe capability. If the server cannot resolve
+        // a word it names it, this client asks the shell about exactly that
+        // word and calls again with the shell's answer, relayed verbatim.
+        var reply = postPreflight(clientId, """{"command":${escapeJson(command)},"platform":"jetbrains","channel":"$CHANNEL","v":"$VERSION","probe_ok":1}""")
+
+        if (reply.code == 200 && extractJsonString(reply.body, "verdict") == "probe") {
+            val words = extractJsonStringArray(reply.body, "probe").take(8)
+            val probes = StringBuilder()
+            val whys = StringBuilder()
+            for (w in words) {
+                if (w.isEmpty() || w.length > 200) continue
+                val t = shellType(w) ?: continue
+                if (probes.isNotEmpty()) probes.append(",")
+                probes.append("${escapeJson(w)}:${t.first}")
+                if (!t.first && t.second != null) {
+                    if (whys.isNotEmpty()) whys.append(",")
+                    whys.append("${escapeJson(w)}:${escapeJson(t.second!!)}")
+                }
+            }
+            reply = postPreflight(clientId, """{"command":${escapeJson(command)},"platform":"jetbrains","channel":"$CHANNEL","v":"$VERSION","probe_ok":1,"probe":{$probes},"probe_why":{$whys}}""")
+        }
+
+        if (reply.code == 402) {
+            val upgrade = extractJsonString(reply.body, "upgrade")
+                ?: "Top up at https://www.golproductions.com/console.html"
+            return CheckResult("invalid", "You've used all 120 free checks for today. Credits never expire. $upgrade")
+        }
+
+        val verdict = extractJsonString(reply.body, "verdict") ?: "error"
+        val reason = extractJsonString(reply.body, "reason") ?: extractJsonString(reply.body, "error")
+        return CheckResult(verdict, reason)
+    }
+
+    private data class Reply(val code: Int, val body: String)
+
+    private fun postPreflight(clientId: String, body: String): Reply {
         val conn = URI(API).toURL().openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
         conn.setRequestProperty("Content-Type", "application/json")
@@ -79,25 +115,33 @@ object CheckApi {
         conn.connectTimeout = TIMEOUT
         conn.readTimeout = TIMEOUT
         conn.doOutput = true
-
-        val body = """{"command":${escapeJson(command)},"platform":"jetbrains","channel":"$CHANNEL","v":"$VERSION"}"""
         conn.outputStream.use { it.write(body.toByteArray()) }
-
         // Non-2xx responses carry no `verdict`; the body lands on errorStream.
         // Read the right stream so a billing/limit reply never throws.
         val code = conn.responseCode
         val stream = if (code in 200..299) conn.inputStream else conn.errorStream
-        val response = stream?.bufferedReader()?.use { it.readText() } ?: ""
+        return Reply(code, stream?.bufferedReader()?.use { it.readText() } ?: "")
+    }
 
-        if (code == 402) {
-            val upgrade = extractJsonString(response, "upgrade")
-                ?: "Top up at https://www.golproductions.com/console.html"
-            return CheckResult("invalid", "You've used all 120 free checks for today. Credits never expire. $upgrade")
-        }
-
-        val verdict = extractJsonString(response, "verdict") ?: "error"
-        val reason = extractJsonString(response, "reason") ?: extractJsonString(response, "error")
-        return CheckResult(verdict, reason)
+    // The other half of the rod: the server names a word, this asks the
+    // shell about exactly that word. The word travels as a positional
+    // argument, never shell-interpreted; the answer is the shell's own.
+    // Pair(exists, whyOrNull). null = no bash located, abstain.
+    private fun shellType(word: String): Pair<Boolean, String?>? {
+        return try {
+            val bash = bashPath() ?: return null
+            val p = ProcessBuilder(bash, "-c", "type -- \"\$1\"", "check", word)
+                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                .start()
+            if (!p.waitFor(4, java.util.concurrent.TimeUnit.SECONDS)) {
+                p.destroyForcibly(); return null
+            }
+            if (p.exitValue() == 0) return Pair(true, null)
+            val stderr = p.errorStream.bufferedReader().use { it.readText() }
+            val line = stderr.lines().firstOrNull { it.contains(word) } ?: ""
+            val why = if (line.isNotEmpty()) line.substring(line.indexOf(word)).trim() else "$word: not found"
+            Pair(false, why.ifEmpty { "$word: not found" })
+        } catch (e: Exception) { null }
     }
 
     // One free GOL Client ID per machine, shared by every Check client
@@ -193,5 +237,10 @@ object CheckApi {
         val pattern = "\"$key\"\\s*:\\s*\"([^\"]*)\""
         val match = Regex(pattern).find(json) ?: return null
         return match.groupValues[1]
+    }
+
+    private fun extractJsonStringArray(json: String, key: String): List<String> {
+        val m = Regex("\"$key\"\\s*:\\s*\\[([^\\]]*)\\]").find(json) ?: return emptyList()
+        return Regex("\"([^\"]*)\"").findAll(m.groupValues[1]).map { it.groupValues[1] }.toList()
     }
 }
